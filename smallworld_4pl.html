@@ -189,9 +189,11 @@
   const editBtn     = document.getElementById('editBtn');
   const moveSgmt    = document.getElementById('moveSgmt');
 
+  const counterAPI_base = 'https://abacus.jasoncameron.dev/hit/cestpasphoto.github.io';
+  const counterAPI_suffix = new Date().toISOString().slice(2,7).replace('-','');
   window.onload = () =>
-    fetch('https://api.counterapi.dev/v1/cestpasphoto.github.io/smallworld4/up')
-      .catch(() => {});
+    [ `${counterAPI_base}/overall`, `${counterAPI_base}/overall_${counterAPI_suffix}`,`${counterAPI_base}/smallworld_${counterAPI_suffix}`]
+    .forEach(u => fetch(u).catch(() => {}));
 
   main(usePyodide=true);
 </script>

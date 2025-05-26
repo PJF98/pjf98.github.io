@@ -427,9 +427,12 @@ myscript.online_simulation_browser_best(dico_solutions, dico_n)
 
   output.value = "Initializing Pyodide, numpy, python code and loading dictionnary...\n";
   button_guess.setAttribute('class', "fluid ui primary massive loading button");
+
+  const counterAPI_base = 'https://abacus.jasoncameron.dev/hit/cestpasphoto.github.io';
+  const counterAPI_suffix = new Date().toISOString().slice(2,7).replace('-','');
   window.onload = () =>
-    fetch('https://api.counterapi.dev/v1/cestpasphoto.github.io/wordle/up')
-      .catch(() => {});
+    [ `${counterAPI_base}/overall`, `${counterAPI_base}/overall_${counterAPI_suffix}`,`${counterAPI_base}/wordle_${counterAPI_suffix}`]
+    .forEach(u => fetch(u).catch(() => {}));
   let pyodideReadyPromise = main();
 </script>
 </body>

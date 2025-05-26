@@ -162,9 +162,11 @@
   const p1details   = document.getElementById('p1details');
   const editMsg     = document.getElementById('editMsg');
 
+  const counterAPI_base = 'https://abacus.jasoncameron.dev/hit/cestpasphoto.github.io';
+  const counterAPI_suffix = new Date().toISOString().slice(2,7).replace('-','');
   window.onload = () =>
-    fetch('https://api.counterapi.dev/v1/cestpasphoto.github.io/santoriniW/up')
-      .catch(() => {});
+    [ `${counterAPI_base}/overall`, `${counterAPI_base}/overall_${counterAPI_suffix}`,`${counterAPI_base}/santorini_${counterAPI_suffix}`]
+    .forEach(u => fetch(u).catch(() => {}));
 
   main(usePyodide=true);
 </script>
