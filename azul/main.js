@@ -121,8 +121,8 @@ function refreshBoard() {
     tempDiv.querySelectorAll('div[style*="min-width:120px"], div[style*="margin-bottom:10px; border:1px solid #333; padding:5px"]').forEach(el => el.remove());
 
     let winnerText = '';
-    if (game.gameEnded[0]) winnerText = 'Player 1 wins!';
-    else if (game.gameEnded[1]) winnerText = 'Player 2 wins!';
+    if (game.gameEnded[0] == 1) winnerText = 'Player 1 wins!';
+    else if (game.gameEnded[1] == 1) winnerText = 'Player 2 wins!';
     else winnerText = 'Tie!';
 
     const scoreDiv = document.createElement('div');
