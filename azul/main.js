@@ -30,11 +30,10 @@ const sizeV = [1, 180];
 class Azul extends AbstractGame {
   constructor() {
     super()
-    this.validMoves = Array(sizeV[1]); this.validMoves.fill(false);
+    this.validMoves = Array(sizeV[1]); this.validMoves.fill(false); this.numMCTSSims = 400;
   }
 
   post_init_game() {
-  this.numMCTSSims = 400;
   }
 
   pre_move(action, manualMove) {
