@@ -261,29 +261,38 @@ function edit() {
 
 // init Pyodide and stuff
 async function init_code() {
-  pyodide = await loadPyodide({ fullStdLib : false });
+  pyodide = await loadPyodide({ fullStdLib: false });
   await pyodide.loadPackage("numpy");
 
-  // Convert list_of_files into a proper string
-  let list_of_files_string = `[`;
-  for (const f of list_of_files) {
-    list_of_files_string += `[`;
-    list_of_files_string += "'" + f[0] + "'";
-    list_of_files_string += `, `;
-    list_of_files_string += "'" + f[1] + "'";
-    list_of_files_string += `], `;
-  }
-  list_of_files_string += `]`;
+  // Always reload files freshly into /home/pyodide
+  for (const [filename_in, filename_out] of list_of_files) {
+    try {
+      // Delete old file if it exists
+      pyodide.FS.unlink(filename_out);
+    } catch (e) {
+      // Ignore if file didn't exist
+    }
 
+    const response = await fetch(filename_in, { cache: "no-store" }); // bypass browser cache
+    const data = await response.arrayBuffer();
+    pyodide.FS.writeFile(filename_out, new Uint8Array(data));
+  }
+
+  // Build a Python list of module names based on your list_of_files
+  const modules = list_of_files
+    .map(([_, filename_out]) => filename_out.replace(".py", ""))
+    .join(", ");
+
+  // Reload all those modules if they were already imported
   await pyodide.runPythonAsync(`
-    from pyodide.http import pyfetch
-    for filename_in, filename_out in ${list_of_files_string}:
-      response = await pyfetch(filename_in)
-      with open(filename_out, "wb") as f:
-        f.write(await response.bytes())
+import sys, importlib
+for mod in [${modules.split(", ").map(m => `"${m}"`).join(", ")}]:
+    if mod in sys.modules:
+        importlib.reload(sys.modules[mod])
   `);
+
   loadONNX(); // Not "await" on purpose
-  console.log('Loaded python code, pyodide ready');  
+  console.log("Loaded python code, pyodide ready");
 }
 
 async function main(usePyodide=true) {
