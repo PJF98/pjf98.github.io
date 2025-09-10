@@ -10,7 +10,6 @@
   <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.16.0/dist/ort.min.js"></script>
 
-  <!-- <script src="./azul/constants.js"></script> -->
   <script src="./common/game.js"></script>
   <script src="./azul/main.js"></script>
 </head>
@@ -86,7 +85,6 @@
 	  </div>
 	</div>
 
-    <!-- Colour dropdown -->
 	<style>
 	  .colour-circle {
 	    display: inline-block;
@@ -95,13 +93,13 @@
 	    border-radius: 50%;
 	    margin-right: 8px;
 	    vertical-align: middle;
-	    border: 1px solid #000; /* optional for contrast */
+	    border: 1px solid #000;
 	  }
 	  .colour-blue   { background-color: blue; }
 	  .colour-yellow { background-color: yellow; }
 	  .colour-red    { background-color: red; }
 	  .colour-black  { background-color: black; }
-	  .colour-white  { background-color: white; border: 1px solid #ccc; } /* border to see it */
+	  .colour-white  { background-color: white; border: 1px solid #ccc; }
 	</style>
 
 	<div class="field">
@@ -130,7 +128,6 @@
 	  </div>
 	</div>
 
-    <!-- Line dropdown -->
 	<div class="field">
 	  <label>Line</label>
 	  <div id="lineSelect" class="ui selection dropdown">
@@ -150,7 +147,6 @@
 
 	<input type="hidden" id="userMoveID">
 
-    <!-- Move button -->
 	    <div class="field">
 	      <label>&nbsp;</label>
 	      <button id="moveBtn" class="ui button" onclick="submitMove()">Move</button>

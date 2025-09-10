@@ -61,39 +61,30 @@ function moveToString(move, gameMode) {
 }
 
 function submitMove() {
-  // Get dropdown values
   const factory = $('#factorySelect').dropdown('get value');
   const colour = $('#colourSelect').dropdown('get value');
   const line = $('#lineSelect').dropdown('get value');
 
-  // Mapping for factory
   const factoryMap = { 'C': 0, 'F1': 1, 'F2': 2, 'F3': 3, 'F4': 4, 'F5': 5 };
 
-  // Mapping for colour
   const colourMap = { 'Blue': 0, 'Yellow': 1, 'Red': 2, 'Black': 3, 'White': 4 };
 
-  // Mapping for line
   const lineMap = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5 };
 
-  // Encode into move number
   const move = 30 * factoryMap[factory] + 6 * colourMap[colour] + lineMap[line];
 
-  // Push into the original input so userMove() works unchanged
   document.getElementById('userMoveID').value = move;
 
   const moveBtn = document.getElementById('moveBtn');
 
   if (!game.validMoves[move]) {
-    // Flash red if invalid
     moveBtn.classList.add('red');
     setTimeout(() => moveBtn.classList.remove('red'), 200);
     return;
   }
 
-  // Otherwise perform the move
   userMove();
 
-  // Flash green for valid move
   moveBtn.classList.add('green');
   setTimeout(() => moveBtn.classList.remove('green'), 200);
 }
@@ -117,20 +108,16 @@ function refreshBoard() {
   console.log('refresh board');
   const boardSgmt = document.getElementById('boardSgmt');
 
-  // Get full board HTML from Python
   let boardHTML = game.py.getBoard();
 
-  // Access final scores from Python
   const scores = game.py.g.board.scores.toJs ? game.py.g.board.scores.toJs() : game.py.g.board.scores;
   const p1Score = scores[0][0];
   const p2Score = scores[0][1];
 
-  // Create a temporary DOM element to manipulate HTML
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = boardHTML;
 
   if (game.gameEnded.some(x => !!x)) {
-    // Remove factories and centre
     tempDiv.querySelectorAll('div[style*="min-width:120px"], div[style*="margin-bottom:10px; border:1px solid #333; padding:5px"]').forEach(el => el.remove());
 
     let winnerText = '';
@@ -138,7 +125,6 @@ function refreshBoard() {
     else if (game.gameEnded[1]) winnerText = 'Player 2 wins!';
     else winnerText = 'Tie!';
 
-    // Add final score header at the top
     const scoreDiv = document.createElement('div');
     scoreDiv.style = "text-align:center; padding:10px; border:1px solid #333; border-radius:6px; background:#f0f0f0; margin-bottom:10px;";
     scoreDiv.innerHTML = `
@@ -151,7 +137,6 @@ function refreshBoard() {
     tempDiv.prepend(scoreDiv);
   }
 
-  // Render the modified HTML
   boardSgmt.innerHTML = tempDiv.innerHTML;
 }
 

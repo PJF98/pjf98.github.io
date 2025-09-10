@@ -270,7 +270,6 @@ class Board():
                     if np.all(row == 1):
                         row_totals[p] += 1
 
-            # Determine the output based on scores and row_totals
             if (self.scores[0, 0] > self.scores[0, 1]) or (self.scores[0, 0] == self.scores[0, 1] and row_totals[0] > row_totals[1]):
                 out = np.array([1.0, -1.0], dtype=np.float32)
             elif (self.scores[0, 1] > self.scores[0, 0]) or (self.scores[0, 0] == self.scores[0, 1] and row_totals[1] > row_totals[0]):

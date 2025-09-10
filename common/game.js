@@ -259,31 +259,25 @@ function edit() {
 /* ===== PYODIDE ===== */
 /* =================== */
 
-// init Pyodide and stuff
 async function init_code() {
   pyodide = await loadPyodide({ fullStdLib: false });
   await pyodide.loadPackage("numpy");
 
-  // Always reload files freshly into /home/pyodide
   for (const [filename_in, filename_out] of list_of_files) {
     try {
-      // Delete old file if it exists
       pyodide.FS.unlink(filename_out);
     } catch (e) {
-      // Ignore if file didn't exist
     }
 
-    const response = await fetch(filename_in, { cache: "no-store" }); // bypass browser cache
+    const response = await fetch(filename_in, { cache: "no-store" });
     const data = await response.arrayBuffer();
     pyodide.FS.writeFile(filename_out, new Uint8Array(data));
   }
 
-  // Build a Python list of module names based on your list_of_files
   const modules = list_of_files
     .map(([_, filename_out]) => filename_out.replace(".py", ""))
     .join(", ");
 
-  // Reload all those modules if they were already imported
   await pyodide.runPythonAsync(`
 import sys, importlib
 for mod in [${modules.split(", ").map(m => `"${m}"`).join(", ")}]:
@@ -291,7 +285,7 @@ for mod in [${modules.split(", ").map(m => `"${m}"`).join(", ")}]:
         importlib.reload(sys.modules[mod])
   `);
 
-  loadONNX(); // Not "await" on purpose
+  loadONNX();
   console.log("Loaded python code, pyodide ready");
 }
 

@@ -5,7 +5,7 @@ import numpy as np
 from js import document
 
 g, board, mcts, player = None, None, None, 0
-history = []  # Previous states (new to old, not current). Each is an array with player and board and action
+history = []
 
 
 class dotdict(dict):
@@ -54,10 +54,9 @@ def changeDifficulty(numMCTSSims):
 async def guessBestAction():
     global g, board, mcts, player, history
     probs, _, _ = await mcts.getActionProb(g.getCanonicalForm(board, player), force_full_search=True)
-    g.board.copy_state(board, True)  # g.board was in canonical form, set it back to normal form
+    g.board.copy_state(board, True)
     best_action = max(range(len(probs)), key=lambda x: probs[x])
 
-    # Compute good moves
     print('List of best moves found by AI:')
     sorted_probs = sorted([(action, p) for action, p in enumerate(probs)], key=lambda x: x[1], reverse=True)
     for i, (action, p) in enumerate(sorted_probs):
@@ -73,14 +72,11 @@ async def guessBestAction():
 def revert_to_previous_move(player_asking_revert):
     global g, board, mcts, player, history
     if len(history) > 0:
-        # Revert to the previous 0 before a 1, or first 0 from game
         for index, state in enumerate(history):
             if (state[0] == player_asking_revert) and (index+1 == len(history) or history[index+1][0] != player_asking_revert):
                 break
         print(f'index={index} / {len(history)}')
 
-        # Actually revert, and update history
-        # print(f'Board to revert: {state[1]}')
         player, board = state[0], state[1]
         history = history[index+1:]
 
@@ -105,13 +101,13 @@ def get_scores():
 
 def getBoard():
     color_map = {
-        -1: "#eee",   # empty / unassigned
+        -1: "#eee",
         0: "blue",
         1: "yellow",
         2: "red",
         3: "black",
         4: "white",
-        5: "green",   # first player token (centre)
+        5: "green",
     }
 
     wall_colors = ["blue", "yellow", "red", "black", "white"]
@@ -147,7 +143,7 @@ def getBoard():
                 else:
                     html += '<span style="display:inline-block; width:22px; height:22px; margin-right:2px; border-radius:50%; background:#f9f9f9; border:1px dashed #ccc;"></span>'
             html += '</div>'
-        # Discards row (keep same height)
+        
         discards = min(g.board.player_row_numbers[player_idx][5], 7)
         discard_values = [-1, -1, -2, -2, -2, -3, -3]
         html += '<div style="display:flex; gap:4px; margin-left:2px; margin-top:4px; align-items:flex-start;">'
@@ -175,10 +171,8 @@ def getBoard():
         html += '</div>'
         return html
 
-    # Start assembling HTML
     result = ''
 
-    # Styled scores with bag display
     result += '''
     <div style="border:1px solid #333; padding:10px; border-radius:6px; display:inline-block; margin-bottom:10px; background:#f0f0f0;">
         <div style="margin-bottom:6px; font-weight:bold;"><strong>Player 1 Score:</strong> {}</div>
@@ -191,7 +185,6 @@ def getBoard():
         render_tiles(g.board.bag[0, :5], duplicates=False, show_count=True)
     )
 
-    # Factories all in one row
     result += '<div style="display:flex; gap:10px; margin-bottom:10px;">'
     for i, factory in enumerate(g.board.factories):
         if sum(factory) > 0:
@@ -200,20 +193,17 @@ def getBoard():
             result += '</div>'
     result += '</div>'
 
-    # Centre
     result += '<div style="margin-bottom:10px; border:1px solid #333; padding:5px; display:inline-block; border-radius:6px;">'
     result += '<span style="font-weight:bold; font-size:16px;">C</span><br>' + render_tiles(g.board.centre[0, :6], duplicates=True)
     result += '</div><br><br>'
 
-    # Player 1 staircase + wall
     fp1 = '<span style="display:inline-block; width:16px; height:16px; border-radius:50%; background:green; margin-left:4px;"></span>' if g.board.player_colours[0][5] == 1 else ''
     result += f'<h3>Player 1 {fp1}</h3>'
     result += '<div style="display:flex; gap:20px; align-items:flex-start;">'
     result += render_staircase(0)
-    result += render_wall(0)  # now slightly bigger with margin-left
+    result += render_wall(0)
     result += '</div>'
 
-    # Player 2 staircase + wall
     fp2 = '<span style="display:inline-block; width:16px; height:16px; border-radius:50%; background:green; margin-left:4px;"></span>' if g.board.player_colours[1][5] == 1 else ''
     result += f'<h3>Player 2 {fp2}</h3>'
     result += '<div style="display:flex; gap:20px; align-items:flex-start;">'
