@@ -2,6 +2,7 @@ from MCTS import MCTS
 from AzulGame import AzulGame as Game
 from AzulLogic import move_to_str
 import numpy as np
+from js import document
 
 g, board, mcts, player = None, None, None, 0
 history = []  # Previous states (new to old, not current). Each is an array with player and board and action
@@ -64,6 +65,8 @@ async def guessBestAction():
             break
         print(f'{int(100*p)}% [{action}] {move_to_str(action)}')
 
+    move_sgmt = document.getElementById("moveSgmt")
+    move_sgmt.innerHTML = f"AI plays {move_to_str(best_action)}"
     return best_action
 
 
@@ -74,12 +77,12 @@ def revert_to_previous_move(player_asking_revert):
         for index, state in enumerate(history):
             if (state[0] == player_asking_revert) and (index+1 == len(history) or history[index+1][0] != player_asking_revert):
                 break
-            print(f'index={index} / {len(history)}')
+        print(f'index={index} / {len(history)}')
 
-            # Actually revert, and update history
-            # print(f'Board to revert: {state[1]}')
-            player, board = state[0], state[1]
-            history = history[index+1:]
+        # Actually revert, and update history
+        # print(f'Board to revert: {state[1]}')
+        player, board = state[0], state[1]
+        history = history[index+1:]
 
     end = g.getGameEnded(board, player)
     valids = g.getValidMoves(board, player)
@@ -94,6 +97,11 @@ def get_last_action():
     return history[0][2]
 
 # -----------------------------------------------------------------------------
+
+
+def get_scores():
+    return g.board.scores.tolist()
+
 
 def getBoard():
     color_map = {
@@ -198,14 +206,16 @@ def getBoard():
     result += '</div><br><br>'
 
     # Player 1 staircase + wall
-    result += '<h3>Player 1</h3>'
+    fp1 = '<span style="display:inline-block; width:16px; height:16px; border-radius:50%; background:green; margin-left:4px;"></span>' if g.board.player_colours[0][5] == 1 else ''
+    result += f'<h3>Player 1 {fp1}</h3>'
     result += '<div style="display:flex; gap:20px; align-items:flex-start;">'
     result += render_staircase(0)
     result += render_wall(0)  # now slightly bigger with margin-left
     result += '</div>'
 
     # Player 2 staircase + wall
-    result += '<h3>Player 2</h3>'
+    fp2 = '<span style="display:inline-block; width:16px; height:16px; border-radius:50%; background:green; margin-left:4px;"></span>' if g.board.player_colours[1][5] == 1 else ''
+    result += f'<h3>Player 2 {fp2}</h3>'
     result += '<div style="display:flex; gap:20px; align-items:flex-start;">'
     result += render_staircase(1)
     result += render_wall(1)

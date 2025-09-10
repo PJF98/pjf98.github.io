@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.js"></script>
+
   <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.16.0/dist/ort.min.js"></script>
 
@@ -20,21 +23,15 @@
       <button class="ui icon button" onclick="reset()"><i class="file outline icon"></i></button>
     </div>
     <div class="fitted item">
-      <button class="ui icon disabled button" id="editBtn"><i class="edit icon"></i></button>
-    </div>
-    <div class="fitted item">
       <div class="ui small form">
         <div class="field">
           <select onchange="game.change_difficulty(this.value)" id="difficultyForm">
             <optgroup label="Above optimal">
-            <option value="3200"       >God-like</option>
-            <option value="800"        >Boosted</option>
-            <optgroup label="Level used during training">
-            <option value="200"        >Native</option>
-            <optgroup label="Sub optimal levels">
-            <option value="50" selected>Easy</option>
-            <option value="12"         >Easier</option>
-            <option value="3"          >Come on</option>
+            <option value="3200"       >Very Hard (~30s per move)</option>
+            <option value="800"        >Hard (~5s per move)</option>
+            <option value="400" selected>Medium (~2s per move)</option>
+            <option value="200" >Easy</option>
+            <option value="50" >Very Easy</option>
           </select>
         </div>
       </div>
@@ -46,7 +43,7 @@
             <option value="P0" selected>You vs AI</option>
             <option value="P1"         >AI vs you</option>
             <option value="Human"      >No AI</option>
-            <option value="AI"         >WarGames</option>
+            <option value="AI"         >AI vs AI</option>
           </select>
         </div>
       </div>
@@ -69,37 +66,121 @@
     <p id="boardSgmt"></p>
   </div>
 
-  <div class="ui action input">
-    <input type="number" placeholder="ID of your move" id="userMoveID">
-    <button class="ui button" onclick="userMove()">Move</button>
-  </div>
+<div class="ui form">
+  <div class="fields">
+    <!-- Factory dropdown -->
+	<div class="field">
+	  <label>Factory</label>
+	  <div id="factorySelect" class="ui selection dropdown">
+	    <input type="hidden" name="factory">
+	    <i class="dropdown icon"></i>
+	    <div class="default text">Select Factory</div>
+	    <div class="menu">
+	      <div class="item" data-value="F1">F1</div>
+	      <div class="item" data-value="F2">F2</div>
+	      <div class="item" data-value="F3">F3</div>
+	      <div class="item" data-value="F4">F4</div>
+	      <div class="item" data-value="F5">F5</div>
+	      <div class="item" data-value="C">Centre</div>
+	    </div>
+	  </div>
+	</div>
 
-<!-- Button -->
+    <!-- Colour dropdown -->
+	<style>
+	  .colour-circle {
+	    display: inline-block;
+	    width: 16px;
+	    height: 16px;
+	    border-radius: 50%;
+	    margin-right: 8px;
+	    vertical-align: middle;
+	    border: 1px solid #000; /* optional for contrast */
+	  }
+	  .colour-blue   { background-color: blue; }
+	  .colour-yellow { background-color: yellow; }
+	  .colour-red    { background-color: red; }
+	  .colour-black  { background-color: black; }
+	  .colour-white  { background-color: white; border: 1px solid #ccc; } /* border to see it */
+	</style>
 
+	<div class="field">
+	  <label>Colour</label>
+	  <div id="colourSelect" class="ui selection dropdown">
+	    <input type="hidden" name="colour">
+	    <i class="dropdown icon"></i>
+	    <div class="default text">Select Colour</div>
+	    <div class="menu">
+	      <div class="item" data-value="Blue">
+		<span class="colour-circle colour-blue"></span> Blue
+	      </div>
+	      <div class="item" data-value="Yellow">
+		<span class="colour-circle colour-yellow"></span> Yellow
+	      </div>
+	      <div class="item" data-value="Red">
+		<span class="colour-circle colour-red"></span> Red
+	      </div>
+	      <div class="item" data-value="Black">
+		<span class="colour-circle colour-black"></span> Black
+	      </div>
+	      <div class="item" data-value="White">
+		<span class="colour-circle colour-white"></span> White
+	      </div>
+	    </div>
+	  </div>
+	</div>
 
-  <div class="ui fluid large compact buttons" id="allBtn" style="display: none">
-    <button class="ui icon button" id="undoBtn" onclick="cancel_and_undo()"><i class="undo icon"></i></button>
-  </div>
-  <button class="ui fluid large active loading button" id="loadingBtn">‌</button>
+    <!-- Line dropdown -->
+	<div class="field">
+	  <label>Line</label>
+	  <div id="lineSelect" class="ui selection dropdown">
+	    <input type="hidden" name="line">
+	    <i class="dropdown icon"></i>
+	    <div class="default text">Select Line</div>
+	    <div class="menu">
+	      <div class="item" data-value="1">Line 1</div>
+	      <div class="item" data-value="2">Line 2</div>
+	      <div class="item" data-value="3">Line 3</div>
+	      <div class="item" data-value="4">Line 4</div>
+	      <div class="item" data-value="5">Line 5</div>
+	      <div class="item" data-value="6">Discard</div>
+	    </div>
+	  </div>
+	</div>
+
+	<input type="hidden" id="userMoveID">
+
+    <!-- Move button -->
+	    <div class="field">
+	      <label>&nbsp;</label>
+	      <button id="moveBtn" class="ui button" onclick="submitMove()">Move</button>
+	    </div>
+
+	    <div class="field">
+	      <label>&nbsp;</label>
+	      <button id="undoBtn" class="ui button" onclick="cancel_and_undo()">Undo</button>
+	    </div>
+	  </div>
+	</div>
 
   <div class="ui basic segment">
-    <p id="moveSgmt">Loading pyodide, numpy, onnx; please wait...</p>
+    <p id="moveSgmt"></p>
   </div>
 </div>
 
 
 <script>
-  const allBtn      = document.getElementById('allBtn');
   const undoBtn     = document.getElementById('undoBtn');
   const loadingBtn  = document.getElementById('loadingBtn');
-  const editBtn     = document.getElementById('editBtn');
   const moveSgmt    = document.getElementById('moveSgmt');
 
-  const counterAPI_base = 'https://abacus.jasoncameron.dev/hit/cestpasphoto.github.io';
+  const counterAPI_base = 'https://abacus.jasoncameron.dev/hit/pjf98.github.io';
   const counterAPI_suffix = new Date().toISOString().slice(2,7).replace('-','');
   window.onload = () =>
     [ `${counterAPI_base}/overall`, `${counterAPI_base}/overall_${counterAPI_suffix}`]
     .forEach(u => fetch(u).catch(() => {}));
+
+  $('.ui.dropdown').dropdown();
 
   main(usePyodide=true);
 </script>
