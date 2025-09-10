@@ -34,6 +34,7 @@ class Azul extends AbstractGame {
   }
 
   post_init_game() {
+  this.numMCTSSims = 400;
   }
 
   pre_move(action, manualMove) {
