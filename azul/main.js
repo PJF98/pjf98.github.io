@@ -104,6 +104,7 @@ function userMove() {
   game.move(move, true);
   move_sel.reset();
   refreshBoard();
+  refreshButtons();
   const moveSgmt = document.getElementById('moveSgmt');
   moveSgmt.textContent = `Player plays ${game.py.move_to_str(move)}`;
 
@@ -147,6 +148,13 @@ function refreshBoard() {
 }
 
 function refreshButtons(loading=false) {
+  const btn = document.getElementById("moveBtn");
+
+  if (loading) {
+    btn.classList.add("loading", "disabled");
+  } else {
+    btn.classList.remove("loading", "disabled");
+  }
 }
 
 function refreshPlayersText() {
