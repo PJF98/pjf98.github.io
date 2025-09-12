@@ -62,27 +62,33 @@ function moveToString(move, gameMode) {
 
 function submitMove() {
   const factory = $('#factorySelect').dropdown('get value');
-  const colour = $('#colourSelect').dropdown('get value');
-  const line = $('#lineSelect').dropdown('get value');
+  const colour  = $('#colourSelect').dropdown('get value');
+  const line    = $('#lineSelect').dropdown('get value');
 
   const factoryMap = { 'C': 0, 'F1': 1, 'F2': 2, 'F3': 3, 'F4': 4, 'F5': 5 };
-
-  const colourMap = { 'Blue': 0, 'Yellow': 1, 'Red': 2, 'Black': 3, 'White': 4 };
-
-  const lineMap = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5 };
+  const colourMap  = { 'Blue': 0, 'Yellow': 1, 'Red': 2, 'Black': 3, 'White': 4 };
+  const lineMap    = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5 };
 
   const move = 30 * factoryMap[factory] + 6 * colourMap[colour] + lineMap[line];
-
   document.getElementById('userMoveID').value = move;
 
   const moveBtn = document.getElementById('moveBtn');
 
+  // 🔹 Use AbstractGame helper to check if it’s the human’s turn
+  if (!game.is_human_player("next")) {
+    moveBtn.classList.add('red');
+    setTimeout(() => moveBtn.classList.remove('red'), 200);
+    return;
+  }
+
+  // 🔹 Validate the move itself
   if (!game.validMoves[move]) {
     moveBtn.classList.add('red');
     setTimeout(() => moveBtn.classList.remove('red'), 200);
     return;
   }
 
+  // ✅ Otherwise play the move
   userMove();
 
   moveBtn.classList.add('green');
@@ -152,7 +158,6 @@ function changeMoveText() {
 /* =================== */
 /* ===== ACTIONS ===== */
 /* =================== */
-
 
 var game = new Azul();
 var move_sel = new MoveSelector();
